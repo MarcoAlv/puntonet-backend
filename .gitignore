@@ -1,0 +1,96 @@
+# Python-generated files
+__pycache__/
+*.py[cod]
+*$py.class
+build/
+dist/
+wheels/
+*.egg-info
+
+# C extensions
+*.so
+
+# Virtual environments
+.venv
+
+secrets/
+.env
+
+# PyInstaller
+*.manifest
+*.spec
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre
+.pyre/
+
+# pytype
+.pytype/
+
+# Caches
+__pypackages__/
+*.pytest_cache/
+*.cache
+
+# IDEs
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Logs
+*.log
+logs/
+*.out
+*.err
+
+# SQLite (in case you use it for local dev)
+*.db
+*.sqlite3
+
+# Alembic
+alembic/versions/*.pyc
+alembic/versions/__pycache__/
+alembic/versions/*.py
+
+# Docker
+*.env
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Test / coverage
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# uv / Python package manager artifacts
+.uv/
+__pypackages__/  # uv installs packages here by default
