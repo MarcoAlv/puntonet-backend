@@ -29,13 +29,11 @@ async def register_user(
     db: AsyncSession = Depends(get_session)
 ):
     res = await db.execute(select(User).where(
-        (User.username == data.username) | (User.email == data.email)
+        (User.email == data.email)
     ))
     user = res.scalar_one_or_none()
     if user and user.email == data.email:
         raise HTTPException(status_code=409, detail="Email already exists")
-    if user and user.username == data.username:
-        raise HTTPException(status_code=409, detail="Username already exists")
 
     user_data = data.model_dump()
     user_data["password"] = hash_password(user_data.pop("password"))

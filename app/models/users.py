@@ -12,9 +12,10 @@ class User(Base):
         CUSTOMER = "customer"
         PROVIDER = "provider"
 
-    username: Mapped[str] = mapped_column(
-        String(50), unique=True, nullable=False, index=True)
+    full_name : Mapped[str] = mapped_column(
+        String(255), unique=True, nullable=False, index=False)
     password: Mapped[str] = mapped_column(String(128), nullable=False)
+    phone: Mapped[str] = mapped_column(String(20), nullable=True)
     email: Mapped[str] = mapped_column(
         String(100), unique=True, nullable=False, index=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=False)
