@@ -44,7 +44,7 @@ def basic_permission_dependency(
 ) -> Callable:
     async def m(
         request: Request,
-        User = Depends(auth_dependency)
+        dependency_user = Depends(auth_dependency)
     ) -> User:
         user = getattr(request.state, "user", None)
 
