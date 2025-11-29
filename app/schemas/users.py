@@ -7,6 +7,12 @@ from pydantic import (
 )
 
 
+class UserProfile(BaseModel):
+    full_name: str
+    email: str
+    phone: str
+
+
 class UserRegister(BaseModel):
     full_name: str = Field(examples=["Alba Alvarado"])
     email: EmailStr = Field(..., description="Valid email address")
