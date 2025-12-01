@@ -1,2 +1,3 @@
 from .users import User
-models_collection = (User)
+from .store import Product
+models_collection = (User, Product)

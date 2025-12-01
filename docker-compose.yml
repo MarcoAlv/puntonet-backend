@@ -1,5 +1,5 @@
 networks:
-  app_network:
+  puntonet_network:
     driver: bridge
 
 volumes:
@@ -8,41 +8,42 @@ volumes:
   alembic_migrations:
 
 services:
-  app:
+  pn-app:
     build:
       context: .
       dockerfile: Dockerfile
     depends_on:
-      - db
-      - redis
-    image: template:latest
-    container_name: template
+      - pn-db
+      - pn-redis
+    image: puntonetbackend:latest
+    container_name: pn-template
     env_file:
       - ./.env
     ports:
-      - "8000:8000"
+      - "8010:8000"
     volumes:
       - ./secrets:/develop/secrets:ro
+      - ./media:/develop/media:ro
       - alembic_migrations:/develop/alembic/versions
     networks:
-      - app_network
+      - puntonet_network
 
-  db:
+  pn-db:
     image: postgres:16
-    container_name: postgres_db
+    container_name: pn-postgres_db
     restart: always
     env_file:
       - ./.env
     expose:
       - 5432
     networks:
-      - app_network
+      - puntonet_network
     volumes:
       - pgdata:/var/lib/postgresql/data
 
-  redis:
+  pn-redis:
     image: redis:7-alpine
-    container_name: redis
+    container_name: pn-redis
     expose:
       - 6379
     volumes:
@@ -54,4 +55,4 @@ services:
       timeout: 3s
       retries: 5
     networks:
-      - app_network
+      - puntonet_network

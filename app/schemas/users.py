@@ -11,6 +11,13 @@ class UserProfile(BaseModel):
     full_name: str
     email: str
     phone: str
+    store_name: str | None
+    
+class UserProfileUpdate(BaseModel):
+    full_name: str | None = None
+    email: str | None = None
+    phone: str | None = None
+    store_name: str | None = None
 
 
 class UserRegister(BaseModel):

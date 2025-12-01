@@ -40,7 +40,7 @@ async def claim_token(
     
     if payload.get("type") == "refresh":
         is_deleted = await redis_client.delete(
-            f"wljwt:{payload.get("jti").replace("-", "")}"
+            f"wljwt:{str(payload.get("jti") or "").replace("-", "")}"
         )
         if is_deleted == 0:
             raise ValueError(f"Refresh Token has been already used")

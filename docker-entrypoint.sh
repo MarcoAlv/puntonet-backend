@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 
-mkdir -p ./media/chat/images
+mkdir -p ./media
 
 # Use uvloop + httptools
 export UVICORN_LOOP=uvloop

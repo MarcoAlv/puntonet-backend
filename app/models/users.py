@@ -1,7 +1,7 @@
 import enum
 from app.core.db.model import Base
-from sqlalchemy import String, Enum, Boolean
 from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import String, Enum, Boolean, Index
 
 
 class User(Base):
@@ -21,3 +21,18 @@ class User(Base):
     is_active: Mapped[bool] = mapped_column(Boolean, default=False)
     role: Mapped[BaseUserRole] = mapped_column(
         Enum(BaseUserRole), default=BaseUserRole.CUSTOMER, nullable=False)
+
+    store_name: Mapped[str | None] = mapped_column(
+        String(100),
+        nullable=True,
+        default=None
+    )
+
+    __table_args__ = (
+        Index(
+            "uq_store_name_not_null",
+            "store_name",
+            unique=True,
+            postgresql_where=(store_name.isnot(None)),
+        ),
+    )

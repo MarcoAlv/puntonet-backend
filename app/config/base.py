@@ -68,3 +68,7 @@ BROKER_MAX_CONNECTIONS = int(os.getenv("BROKER_MAX_CONNECTIONS", 1))
 REDIS_HOST = os.getenv("REDIS_HOST")
 REDIS_PORT = os.getenv("REDIS_PORT")
 REDIS_DB = os.getenv("REDIS_DB")
+
+
+MEDIA_DIR = PROJECT_DIR / "media"
+MEDIA_DIR.mkdir(parents=True, exist_ok=True)
