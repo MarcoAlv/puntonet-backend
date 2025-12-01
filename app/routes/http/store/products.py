@@ -1,76 +1,111 @@
-from fastapi import APIRouter, File, UploadFile, Form, Depends, HTTPException
+from fastapi import File, UploadFile, Form, Depends, HTTPException
 from app.dependencies.auth import basic_permission_dependency
-from app.models.store import Product, ProductImage
+from app.models.store import Product, ProductImage, Review
 from app.core.db.sessionmanager import get_session
 from sqlalchemy.ext.asyncio import AsyncSession
+from app.routes.http.store import store_routes
 from app.utils.store import serialize_product
 from app.utils import media as media_utils
 from app.config.base import MEDIA_PRODUCTS
 from sqlalchemy.orm import joinedload
 from app.models.users import User
-from sqlalchemy import select
+from sqlalchemy import select, func
 from decimal import Decimal
 from uuid import UUID
 import json
 
 
-store_routes = APIRouter(prefix="/store", tags=["Store"])
-
-
-@store_routes.get("/productos/store/")
+@store_routes.get("/products/store/")
 async def list_my_products(
     db: AsyncSession = Depends(get_session),
     user: User = Depends(basic_permission_dependency([])),
 ):
+    review_stats = (
+        select(
+            Review.product_id,
+            func.count(Review.id).label("review_count"),
+            func.avg(Review.rating).label("review_avg")
+        )
+        .group_by(Review.product_id)
+        .subquery()
+    )
+
     stmt = (
-        select(Product)
+        select(Product, review_stats.c.review_count, review_stats.c.review_avg)
+        .outerjoin(review_stats, review_stats.c.product_id == Product.id)
         .where(Product.user_id == user.id)
-        .options(
-            joinedload(Product.images),
-            joinedload(Product.reviews),
-            joinedload(Product.user)
-        )
+        .options(joinedload(Product.images), joinedload(Product.user))
     )
+
     result = await db.execute(stmt)
-    products = result.scalars().all()
+    rows = result.all()
 
-    return [serialize_product(p) for p in products]
+    products = [
+        serialize_product(p, review_count=rc or 0, review_avg=float(ra) if ra is not None else None)
+        for p, rc, ra in rows
+    ]
+
+    return products
 
 
-@store_routes.get("/productos")
+@store_routes.get("/products")
 async def list_products(db: AsyncSession = Depends(get_session)):
-    stmt = select(Product).options(
-        joinedload(Product.images),
-        joinedload(Product.reviews),
-        joinedload(Product.user)
-    )
-    result = await db.execute(stmt)
-    products = result.scalars().all()
-
-    return [serialize_product(p) for p in products]
-
-
-@store_routes.get("/producto/{product_uuid}")
-async def get_product(product_uuid: UUID, db: AsyncSession = Depends(get_session)):
-    stmt = (
-        select(Product)
-        .where(Product.uuid == product_uuid)
-        .options(
-            joinedload(Product.images),
-            joinedload(Product.reviews),
-            joinedload(Product.user)
+    review_stats = (
+        select(
+            Review.product_id,
+            func.count(Review.id).label("review_count"),
+            func.avg(Review.rating).label("review_avg")
         )
+        .group_by(Review.product_id)
+        .subquery()
     )
-    result = await db.execute(stmt)
-    product = result.scalar_one_or_none()
 
-    if not product:
+    stmt = (
+        select(Product, review_stats.c.review_count, review_stats.c.review_avg)
+        .outerjoin(review_stats, review_stats.c.product_id == Product.id)
+        .options(joinedload(Product.images), joinedload(Product.user))
+    )
+
+    result = await db.execute(stmt)
+    rows = result.all()
+
+    return [
+        serialize_product(p, review_count=rc or 0, review_avg=float(ra) if ra is not None else None)
+        for p, rc, ra in rows
+    ]
+
+
+@store_routes.get("/products/{product_uuid}")
+async def get_product(product_uuid: UUID, db: AsyncSession = Depends(get_session)):
+    review_stats = (
+        select(
+            Review.product_id,
+            func.count(Review.id).label("review_count"),
+            func.avg(Review.rating).label("review_avg")
+        )
+        .where(Review.product_id == Product.id)
+        .group_by(Review.product_id)
+        .subquery()
+    )
+
+    stmt = (
+        select(Product, review_stats.c.review_count, review_stats.c.review_avg)
+        .outerjoin(review_stats, review_stats.c.product_id == Product.id)
+        .where(Product.uuid == product_uuid)
+        .options(joinedload(Product.images), joinedload(Product.user))
+    )
+
+    result = await db.execute(stmt)
+    row = result.first()
+
+    if not row:
         raise HTTPException(404, "Product not found")
 
-    return serialize_product(product)
+    product, rc, ra = row
+    return serialize_product(product, review_count=rc or 0, review_avg=float(ra) if ra is not None else None)
 
 
-@store_routes.post("/producto")
+@store_routes.post("/products")
 async def create_product(
     title: str = Form(...),
     price: str = Form(...),
@@ -117,7 +152,7 @@ async def create_product(
     return {"status": "ok", "product_uuid": product.uuid}
 
 
-@store_routes.put("/producto/{product_uuid}")
+@store_routes.put("/products/{product_uuid}")
 async def update_product(
     product_uuid: UUID,
     title: str = Form(None),
@@ -195,9 +230,9 @@ async def update_product(
     return serialize_product(product)
 
 
-@store_routes.delete("/producto/{product_uuid}")
+@store_routes.delete("/products/{product_uuid}")
 async def delete_product(
-    product_uuid: int,
+    product_uuid: UUID,
     db: AsyncSession = Depends(get_session),
     user: User = Depends(basic_permission_dependency([])),
 ):
@@ -218,7 +253,7 @@ async def delete_product(
     return {"status": "deleted"}
 
 
-@store_routes.delete("/producto/{product_uuid}/image/{image_uuid}")
+@store_routes.delete("/products/{product_uuid}/image/{image_uuid}")
 async def delete_image(
     product_uuid: UUID,
     image_uuid: UUID,

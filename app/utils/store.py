@@ -1,8 +1,8 @@
 from app.models.store import Product
 from app.utils.media import full_url
-from statistics import mean
+from typing import Optional
 
-def serialize_product(product: Product) -> dict:
+def serialize_product(product: Product, review_count: int = 0, review_avg: Optional[float] = None) -> dict:
     primary = None
     secondary = []
 
@@ -12,10 +12,6 @@ def serialize_product(product: Product) -> dict:
             primary = url
         else:
             secondary.append(url)
-
-    ratings = [r.rating for r in product.reviews]
-    review_count = len(ratings)
-    review_avg = mean(ratings) if review_count > 0 else None
 
     return {
         "uuid": str(product.uuid),
@@ -29,5 +25,5 @@ def serialize_product(product: Product) -> dict:
         "secondary_images": secondary,
         "review_count": review_count,
         "review_avg": review_avg,
-        "store_name": product.user.store_name,
+        "store_name": product.user.store_name if product.user else None,
     }
