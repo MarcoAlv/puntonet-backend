@@ -50,7 +50,7 @@ class DatabaseSessionManager:
         async with self._engine.begin() as connection:
             try:
                 yield connection
-            except Exception:
+            except SQLAlchemyError:
                 await connection.close()
                 raise
 
