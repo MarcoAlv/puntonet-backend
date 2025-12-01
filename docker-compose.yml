@@ -23,7 +23,7 @@ services:
       - "8010:8000"
     volumes:
       - ./secrets:/develop/secrets:ro
-      - ./media:/develop/media:ro
+      - ./media:/develop/media:rw
       - alembic_migrations:/develop/alembic/versions
     networks:
       - puntonet_network
