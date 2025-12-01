@@ -20,32 +20,36 @@ async def list_my_products(
     db: AsyncSession = Depends(get_session),
     user: User = Depends(basic_permission_dependency([])),
 ):
-    review_stats = (
-        select(
-            Review.product_id,
-            func.count(Review.id).label("review_count"),
-            func.avg(Review.rating).label("review_avg")
+    try:
+        review_stats = (
+            select(
+                Review.product_id,
+                func.count(Review.id).label("review_count"),
+                func.avg(Review.rating).label("review_avg")
+            )
+            .group_by(Review.product_id)
+            .subquery()
         )
-        .group_by(Review.product_id)
-        .subquery()
-    )
 
-    stmt = (
-        select(Product, review_stats.c.review_count, review_stats.c.review_avg)
-        .outerjoin(review_stats, review_stats.c.product_id == Product.id)
-        .where(Product.user_id == user.id)
-        .options(joinedload(Product.images), joinedload(Product.user))
-    )
+        stmt = (
+            select(Product, review_stats.c.review_count, review_stats.c.review_avg)
+            .outerjoin(review_stats, review_stats.c.product_id == Product.id)
+            .where(Product.user_id == user.id)
+            .options(joinedload(Product.images), joinedload(Product.user))
+        )
 
-    result = await db.execute(stmt)
-    rows = result.all()
+        result = await db.execute(stmt)
+        rows = result.all()
 
-    products = [
-        serialize_product(p, review_count=rc or 0, review_avg=float(ra) if ra is not None else None)
-        for p, rc, ra in rows
-    ]
+        products = [
+            serialize_product(p, review_count=rc or 0, review_avg=float(ra) if ra is not None else None)
+            for p, rc, ra in rows
+        ]
 
-    return products
+        return products
+    except Exception as e:
+        print(e)
+    return []
 
 
 @store_routes.get("/products")
