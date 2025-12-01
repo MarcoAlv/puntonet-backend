@@ -72,3 +72,6 @@ REDIS_DB = os.getenv("REDIS_DB")
 
 MEDIA_DIR = PROJECT_DIR / "media"
 MEDIA_DIR.mkdir(parents=True, exist_ok=True)
+
+MEDIA_PRODUCTS = MEDIA_DIR / "products"
+MEDIA_PRODUCTS.mkdir(parents=True, exist_ok=True)

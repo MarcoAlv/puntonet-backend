@@ -9,39 +9,37 @@ from sqlalchemy import Numeric, String, Enum, Boolean, ForeignKey, Integer, Date
 class Product(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=False)
 
-    title: Mapped[str] = mapped_column(
-        String(255),
-        nullable=False,
-        unique=True
-    )
+    title: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
 
-    price: Mapped[Decimal] = mapped_column(
-        Numeric(10, 2),
-        nullable=False
-    )
+    price: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False)
+    discount: Mapped[Decimal | None] = mapped_column(Numeric(10, 2), nullable=True)
+    free_shipping: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
 
-    description: Mapped[str] = mapped_column(
-        String(800),
-        nullable=False
-    )
+    description: Mapped[str] = mapped_column(String(800), nullable=False)
+    specs: Mapped[list[str]] = mapped_column(ARRAY(String), nullable=False)
 
-    discount: Mapped[Decimal | None] = mapped_column(
-        Numeric(10, 2),
-        nullable=True
-    )
-
-    free_shipping: Mapped[bool] = mapped_column(
-        Boolean,
-        nullable=False,
-        default=False
-    )
-
-    specs: Mapped[list[str]] = mapped_column(
-        ARRAY(String),
-        nullable=False
-    )
-    
     user = relationship("User", backref="reviews")
+
+    images: Mapped[list["ProductImage"]] = relationship(
+        "ProductImage",
+        back_populates="product",
+        cascade="all, delete-orphan"
+    )
+
+
+class ProductImage(Base):
+
+    product_id: Mapped[int] = mapped_column(
+        ForeignKey("product.id", ondelete="CASCADE"),
+        nullable=False
+    )
+
+    path: Mapped[str] = mapped_column(String(300), nullable=False)
+
+    is_primary: Mapped[bool] = mapped_column(Boolean, default=False)
+
+    product = relationship("Product", back_populates="images")
+
 
 
 class Review(Base):
