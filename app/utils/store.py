@@ -24,6 +24,6 @@ def serialize_product(product: Product, review_count: int = 0, review_avg: Optio
         "primary_image": primary,
         "secondary_images": secondary,
         "review_count": review_count,
-        "review_avg": review_avg,
+        "review_avg": review_avg or 0,
         "store_name": product.user.store_name if product.user else None,
     }
