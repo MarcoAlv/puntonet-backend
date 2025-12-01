@@ -1,8 +1,13 @@
 from fastapi import HTTPException, UploadFile
+from app.config.base import PROJECT_URL
 from pathlib import Path
 from io import BytesIO
 from PIL import Image
 import uuid
+
+
+def full_url(path: str) -> str:
+    return f"{PROJECT_URL}{path}"
 
 
 def verify_image(data: bytes, filename: str) -> None:

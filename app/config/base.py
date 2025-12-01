@@ -8,6 +8,7 @@ load_dotenv()
 
 APP_NAME = os.getenv("APP_NAME", "")
 APP_VERSION = cast(int, os.getenv("APP_VERSION"))
+PROJECT_URL = os.getenv("PROJECT_URL", "") or ""
 PROJECT_DIR = Path(__file__).parent.parent.parent
 SECRETS_DIR = PROJECT_DIR / "secrets"
 

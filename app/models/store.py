@@ -4,6 +4,7 @@ from app.core.db.model import Base
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import Numeric, String, Enum, Boolean, ForeignKey, Integer, DateTime
+from app.models.users import User
 
 
 class Product(Base):
@@ -18,10 +19,19 @@ class Product(Base):
     description: Mapped[str] = mapped_column(String(800), nullable=False)
     specs: Mapped[list[str]] = mapped_column(ARRAY(String), nullable=False)
 
-    user = relationship("User", backref="reviews")
+    user: Mapped["User"] = relationship(
+        "User",
+        back_populates="products"
+    )
 
     images: Mapped[list["ProductImage"]] = relationship(
         "ProductImage",
+        back_populates="product",
+        cascade="all, delete-orphan"
+    )
+
+    reviews: Mapped[list["Review"]] = relationship(
+        "Review",
         back_populates="product",
         cascade="all, delete-orphan"
     )
@@ -38,8 +48,10 @@ class ProductImage(Base):
 
     is_primary: Mapped[bool] = mapped_column(Boolean, default=False)
 
-    product = relationship("Product", back_populates="images")
-
+    product = relationship(
+        "Product",
+        back_populates="images"
+    )
 
 
 class Review(Base):
@@ -54,8 +66,15 @@ class Review(Base):
         ForeignKey("user.id"), nullable=False
     )
 
-    product = relationship("Product", backref="reviews")
-    user = relationship("User", backref="reviews")
+    product = relationship(
+        "Product",
+        back_populates="reviews"
+    )
+
+    user = relationship(
+        "User",
+        back_populates="reviews"
+    )
 
 
 class DetailSell(Base):
@@ -91,7 +110,10 @@ class Sell(Base):
         DateTime, default=datetime.utcnow
     )
 
-    user = relationship("User", backref="sells")
+    user = relationship(
+        "User",
+        back_populates="sells"
+    )
 
     details = relationship(
         "DetailSell",
@@ -108,7 +130,11 @@ class Favorite(Base):
         ForeignKey("product.id"), nullable=False
     )
 
-    user = relationship("User", backref="favorites")
+    user = relationship(
+        "User",
+        back_populates="favorites"
+    )
+
     product = relationship("Product")
 
 
@@ -117,7 +143,11 @@ class Cart(Base):
         ForeignKey("user.id"), nullable=False, unique=True
     )
 
-    user = relationship("User", backref="cart")
+    user = relationship(
+        "User",
+        back_populates="cart"
+    )
+
     items = relationship(
         "CartItem",
         backref="cart",
@@ -137,4 +167,3 @@ class CartItem(Base):
     qty: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
 
     product = relationship("Product")
-

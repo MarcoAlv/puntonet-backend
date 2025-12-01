@@ -2,6 +2,7 @@ import enum
 from app.core.db.model import Base
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import String, Enum, Boolean, Index
+from sqlalchemy.orm import relationship
 
 
 class User(Base):
@@ -35,4 +36,35 @@ class User(Base):
             unique=True,
             postgresql_where=(store_name.isnot(None)),
         ),
+    )
+
+    products: Mapped[list["Product"]] = relationship(
+        "Product",
+        back_populates="user",
+        cascade="all, delete-orphan"
+    )
+
+    reviews: Mapped[list["Review"]] = relationship(
+        "Review",
+        back_populates="user",
+        cascade="all, delete-orphan"
+    )
+
+    sells: Mapped[list["Sell"]] = relationship(
+        "Sell",
+        back_populates="user",
+        cascade="all, delete-orphan"
+    )
+
+    favorites: Mapped[list["Favorite"]] = relationship(
+        "Favorite",
+        back_populates="user",
+        cascade="all, delete-orphan"
+    )
+
+    cart: Mapped["Cart"] = relationship(
+        "Cart",
+        back_populates="user",
+        uselist=False,
+        cascade="all, delete-orphan"
     )
