@@ -39,10 +39,14 @@ async def list_my_products(
         )
 
         result = await db.execute(stmt)
-        rows = result.all()
+        rows = result.unique().all()  # Add .unique() here
 
         products = [
-            serialize_product(p, review_count=rc or 0, review_avg=float(ra) if ra is not None else None)
+            serialize_product(
+                p, 
+                review_count=rc or 0, 
+                review_avg=float(ra) if ra is not None else None
+            )
             for p, rc, ra in rows
         ]
 
