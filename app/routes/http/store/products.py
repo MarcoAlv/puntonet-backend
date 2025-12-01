@@ -75,7 +75,7 @@ async def list_products(db: AsyncSession = Depends(get_session)):
     )
 
     result = await db.execute(stmt)
-    rows = result.all()
+    rows = result.unique().all()
 
     return [
         serialize_product(p, review_count=rc or 0, review_avg=float(ra) if ra is not None else None)
@@ -104,7 +104,7 @@ async def get_product(product_uuid: UUID, db: AsyncSession = Depends(get_session
     )
 
     result = await db.execute(stmt)
-    row = result.first()
+    row = result.unique().first()
 
     if not row:
         raise HTTPException(404, "Product not found")
@@ -189,7 +189,7 @@ async def update_product(
         )
     )
     result = await db.execute(stmt)
-    product = result.scalar_one_or_none()
+    product = result.unique().scalar_one_or_none()
     if not product:
         raise HTTPException(404, "Product not found")
 
