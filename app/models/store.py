@@ -4,7 +4,6 @@ from app.core.db.model import Base
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import Numeric, String, Boolean, ForeignKey, Integer, DateTime
-from app.models.users import User
 
 
 class Product(Base):
@@ -14,43 +13,34 @@ class Product(Base):
 
     price: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False)
     discount: Mapped[Decimal | None] = mapped_column(Numeric(10, 2), nullable=True)
-    free_shipping: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    free_shipping: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=False
+    )
 
     description: Mapped[str] = mapped_column(String(800), nullable=False)
     specs: Mapped[list[str]] = mapped_column(ARRAY(String), nullable=False)
 
-    user: Mapped["User"] = relationship(
-        "User",
-        back_populates="products"
-    )
+    user: Mapped["User"] = relationship("User", back_populates="products")
 
     images: Mapped[list["ProductImage"]] = relationship(
-        "ProductImage",
-        back_populates="product",
-        cascade="all, delete-orphan"
+        "ProductImage", back_populates="product", cascade="all, delete-orphan"
     )
 
     reviews: Mapped[list["Review"]] = relationship(
-        "Review",
-        back_populates="product",
-        cascade="all, delete-orphan"
+        "Review", back_populates="product", cascade="all, delete-orphan"
     )
 
 
 class ProductImage(Base):
     product_id: Mapped[int] = mapped_column(
-        ForeignKey("products.id", ondelete="CASCADE"),
-        nullable=False
+        ForeignKey("products.id", ondelete="CASCADE"), nullable=False
     )
 
     path: Mapped[str] = mapped_column(String(300), nullable=False)
 
     is_primary: Mapped[bool] = mapped_column(Boolean, default=False)
 
-    product = relationship(
-        "Product",
-        back_populates="images"
-    )
+    product: Mapped["Product"] = relationship("Product", back_populates="images")
 
 
 class Review(Base):
@@ -61,25 +51,15 @@ class Review(Base):
         ForeignKey("products.id"), nullable=False
     )
 
-    user_id: Mapped[int] = mapped_column(
-        ForeignKey("users.id"), nullable=False
-    )
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
 
-    product = relationship(
-        "Product",
-        back_populates="reviews"
-    )
+    product: Mapped["Product"] = relationship("Product", back_populates="reviews")
 
-    user = relationship(
-        "User",
-        back_populates="reviews"
-    )
+    user: Mapped["User"] = relationship("User", back_populates="reviews")
 
 
 class DetailSell(Base):
-    sell_id: Mapped[int] = mapped_column(
-        ForeignKey("sells.id"), nullable=False
-    )
+    sell_id: Mapped[int] = mapped_column(ForeignKey("sells.id"), nullable=False)
 
     product_id: Mapped[int] = mapped_column(
         ForeignKey("products.id"), nullable=False
@@ -87,21 +67,15 @@ class DetailSell(Base):
 
     qty: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
 
-    price_unit: Mapped[Decimal] = mapped_column(
-        Numeric(10, 2), nullable=False
-    )
+    price_unit: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False)
 
-    product = relationship("Product")
+    product: Mapped["Product"] = relationship("Product")
 
 
 class Sell(Base):
-    user_id: Mapped[int] = mapped_column(
-        ForeignKey("users.id"), nullable=False
-    )
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
 
-    total: Mapped[Decimal] = mapped_column(
-        Numeric(12, 2), nullable=False
-    )
+    total: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False)
 
     paid: Mapped[bool] = mapped_column(Boolean, default=False)
 
@@ -109,32 +83,22 @@ class Sell(Base):
         DateTime, default=datetime.utcnow
     )
 
-    user = relationship(
-        "User",
-        back_populates="sells"
-    )
+    user: Mapped["User"] = relationship("User", back_populates="sells")
 
-    details = relationship(
-        "DetailSell",
-        backref="sell",
-        cascade="all, delete-orphan"
+    details: Mapped[list["DetailSell"]] = relationship(
+        "DetailSell", backref="sell", cascade="all, delete-orphan"
     )
 
 
 class Favorite(Base):
-    user_id: Mapped[int] = mapped_column(
-        ForeignKey("users.id"), nullable=False
-    )
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
     product_id: Mapped[int] = mapped_column(
         ForeignKey("products.id"), nullable=False
     )
 
-    user = relationship(
-        "User",
-        back_populates="favorites"
-    )
+    user: Mapped["User"] = relationship("User", back_populates="favorites")
 
-    product = relationship("Product")
+    product: Mapped["Product"] = relationship("Product")
 
 
 class Cart(Base):
@@ -142,22 +106,15 @@ class Cart(Base):
         ForeignKey("users.id"), nullable=False, unique=True
     )
 
-    user = relationship(
-        "User",
-        back_populates="cart"
-    )
+    user: Mapped["User"] = relationship("User", back_populates="cart")
 
-    items = relationship(
-        "CartItem",
-        backref="cart",
-        cascade="all, delete-orphan"
+    items: Mapped[list["CartItem"]] = relationship(
+        "CartItem", backref="cart", cascade="all, delete-orphan"
     )
 
 
 class CartItem(Base):
-    cart_id: Mapped[int] = mapped_column(
-        ForeignKey("carts.id"), nullable=False
-    )
+    cart_id: Mapped[int] = mapped_column(ForeignKey("carts.id"), nullable=False)
 
     product_id: Mapped[int] = mapped_column(
         ForeignKey("products.id"), nullable=False
@@ -165,4 +122,4 @@ class CartItem(Base):
 
     qty: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
 
-    product = relationship("Product")
+    product: Mapped["Product"] = relationship("Product")
