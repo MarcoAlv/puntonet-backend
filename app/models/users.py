@@ -13,20 +13,44 @@ class User(Base):
         CUSTOMER = "customer"
         PROVIDER = "provider"
 
-    full_name : Mapped[str] = mapped_column(
-        String(255), unique=True, nullable=False, index=False)
+    full_name: Mapped[str] = mapped_column(
+        String(255), unique=True, nullable=False, index=False
+    )
     password: Mapped[str] = mapped_column(String(128), nullable=False)
     phone: Mapped[str] = mapped_column(String(20), nullable=True)
     email: Mapped[str] = mapped_column(
-        String(100), unique=True, nullable=False, index=True)
+        String(100), unique=True, nullable=False, index=True
+    )
     is_active: Mapped[bool] = mapped_column(Boolean, default=False)
     role: Mapped[BaseUserRole] = mapped_column(
-        Enum(BaseUserRole), default=BaseUserRole.CUSTOMER, nullable=False)
+        Enum(BaseUserRole), default=BaseUserRole.CUSTOMER, nullable=False
+    )
 
     store_name: Mapped[str | None] = mapped_column(
-        String(100),
-        nullable=True,
-        default=None
+        String(100), nullable=True, default=None
+    )
+
+    products: Mapped[list["Product"]] = relationship(
+        "Product", back_populates="user", cascade="all, delete-orphan"
+    )
+
+    reviews: Mapped[list["Review"]] = relationship(
+        "Review", back_populates="user", cascade="all, delete-orphan"
+    )
+
+    sells: Mapped[list["Sell"]] = relationship(
+        "Sell", back_populates="user", cascade="all, delete-orphan"
+    )
+
+    favorites: Mapped[list["Favorite"]] = relationship(
+        "Favorite", back_populates="user", cascade="all, delete-orphan"
+    )
+
+    cart: Mapped["Cart"] = relationship(
+        "Cart",
+        back_populates="user",
+        uselist=False,
+        cascade="all, delete-orphan",
     )
 
     __table_args__ = (
@@ -34,37 +58,6 @@ class User(Base):
             "uq_store_name_not_null",
             "store_name",
             unique=True,
-            postgresql_where=(store_name.isnot(None)),
+            postgresql_where="store_name IS NOT NULL",
         ),
-    )
-
-    products: Mapped[list["Product"]] = relationship(
-        "Product",
-        back_populates="user",
-        cascade="all, delete-orphan"
-    )
-
-    reviews: Mapped[list["Review"]] = relationship(
-        "Review",
-        back_populates="user",
-        cascade="all, delete-orphan"
-    )
-
-    sells: Mapped[list["Sell"]] = relationship(
-        "Sell",
-        back_populates="user",
-        cascade="all, delete-orphan"
-    )
-
-    favorites: Mapped[list["Favorite"]] = relationship(
-        "Favorite",
-        back_populates="user",
-        cascade="all, delete-orphan"
-    )
-
-    cart: Mapped["Cart"] = relationship(
-        "Cart",
-        back_populates="user",
-        uselist=False,
-        cascade="all, delete-orphan"
     )

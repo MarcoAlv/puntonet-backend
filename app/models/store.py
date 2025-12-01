@@ -3,12 +3,12 @@ from datetime import datetime
 from app.core.db.model import Base
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy import Numeric, String, Enum, Boolean, ForeignKey, Integer, DateTime
+from sqlalchemy import Numeric, String, Boolean, ForeignKey, Integer, DateTime
 from app.models.users import User
 
 
 class Product(Base):
-    user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=False)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
 
     title: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
 
@@ -38,9 +38,8 @@ class Product(Base):
 
 
 class ProductImage(Base):
-
     product_id: Mapped[int] = mapped_column(
-        ForeignKey("product.id", ondelete="CASCADE"),
+        ForeignKey("products.id", ondelete="CASCADE"),
         nullable=False
     )
 
@@ -59,11 +58,11 @@ class Review(Base):
     comment: Mapped[str] = mapped_column(String(600), nullable=False)
 
     product_id: Mapped[int] = mapped_column(
-        ForeignKey("product.id"), nullable=False
+        ForeignKey("products.id"), nullable=False
     )
 
     user_id: Mapped[int] = mapped_column(
-        ForeignKey("user.id"), nullable=False
+        ForeignKey("users.id"), nullable=False
     )
 
     product = relationship(
@@ -79,11 +78,11 @@ class Review(Base):
 
 class DetailSell(Base):
     sell_id: Mapped[int] = mapped_column(
-        ForeignKey("sell.id"), nullable=False
+        ForeignKey("sells.id"), nullable=False
     )
 
     product_id: Mapped[int] = mapped_column(
-        ForeignKey("product.id"), nullable=False
+        ForeignKey("products.id"), nullable=False
     )
 
     qty: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
@@ -97,7 +96,7 @@ class DetailSell(Base):
 
 class Sell(Base):
     user_id: Mapped[int] = mapped_column(
-        ForeignKey("user.id"), nullable=False
+        ForeignKey("users.id"), nullable=False
     )
 
     total: Mapped[Decimal] = mapped_column(
@@ -124,10 +123,10 @@ class Sell(Base):
 
 class Favorite(Base):
     user_id: Mapped[int] = mapped_column(
-        ForeignKey("user.id"), nullable=False
+        ForeignKey("users.id"), nullable=False
     )
     product_id: Mapped[int] = mapped_column(
-        ForeignKey("product.id"), nullable=False
+        ForeignKey("products.id"), nullable=False
     )
 
     user = relationship(
@@ -140,7 +139,7 @@ class Favorite(Base):
 
 class Cart(Base):
     user_id: Mapped[int] = mapped_column(
-        ForeignKey("user.id"), nullable=False, unique=True
+        ForeignKey("users.id"), nullable=False, unique=True
     )
 
     user = relationship(
@@ -157,11 +156,11 @@ class Cart(Base):
 
 class CartItem(Base):
     cart_id: Mapped[int] = mapped_column(
-        ForeignKey("cart.id"), nullable=False
+        ForeignKey("carts.id"), nullable=False
     )
 
     product_id: Mapped[int] = mapped_column(
-        ForeignKey("product.id"), nullable=False
+        ForeignKey("products.id"), nullable=False
     )
 
     qty: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
