@@ -249,7 +249,7 @@ async def delete_product(
         .where(Product.uuid == product_uuid)
     )
     result = await db.execute(stmt)
-    product = result.scalar_one_or_none()
+    product = result.unique().scalar_one_or_none()
     if not product:
         raise HTTPException(404, "Not found")
 
@@ -274,7 +274,7 @@ async def delete_image(
         .where(ProductImage.uuid == image_uuid)
     )
     result = await db.execute(stmt)
-    img = result.scalar_one_or_none()
+    img = result.unique().scalar_one_or_none()
 
     if not img:
         raise HTTPException(404, "Image not found")
@@ -283,7 +283,7 @@ async def delete_image(
         .where(Product.uuid == product_uuid)
     )
     result = await db.execute(stmt)
-    product = result.scalar_one_or_none()
+    product = result.unique().scalar_one_or_none()
     
     if product:
         if img.product_id != product.id:
