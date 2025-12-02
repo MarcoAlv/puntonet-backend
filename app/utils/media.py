@@ -7,7 +7,7 @@ import uuid
 
 
 def full_url(path: str) -> str:
-    return f"{PROJECT_URL}{path}"
+    return f"{path}"
 
 
 def verify_image(data: bytes, filename: str) -> None:
